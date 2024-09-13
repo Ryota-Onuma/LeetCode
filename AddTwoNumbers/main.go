@@ -12,7 +12,6 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	currentL1 = l1
 	currentL2 = l2
 	var carry, i int
-
 	for {
 		if shouldFinish(currentL1, currentL2, carry) {
 			break
@@ -26,19 +25,10 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 			l2Val = currentL2.Val
 		}
 
-		sum := l1Val + l2Val + carry
-		carry = 0
-		var newVal int
-		// 桁が変わるならキャリーと値を分割
-		if sum > 9 {
-			newVal = sum % 10
-			carry = (sum - newVal) / 10
-		} else {
-			newVal = sum
-		}
+		var newNode *ListNode
+		newNode, carry = createNode(l1Val, l2Val, carry)
 
-		newNode := createNode(newVal, nil)
-
+		// 呼び出し元に返すのは最初のNode
 		if i == 0 {
 			firstNode = newNode
 		} else {
@@ -62,9 +52,24 @@ func shouldFinish(l1, l2 *ListNode, carry int) bool {
 	return l1 == nil && l2 == nil && carry == 0
 }
 
-func createNode(val int, nextNode *ListNode) *ListNode {
+func createNode(val1, val2, carry int) (*ListNode, int) {
+	val, newCarry := calcVal(val1, val2, carry)
 	return &ListNode{
 		Val:  val,
-		Next: nextNode,
+		Next: nil,
+	}, newCarry
+}
+
+func calcVal(val1, val2, carry int) (int, int) {
+	sum := val1 + val2 + carry
+	var newCarry int
+	var newVal int
+	// 繰り上がりがあるならならキャリーと値を分割
+	if sum > 9 {
+		newVal = sum % 10              // あまりがその桁値
+		newCarry = (sum - newVal) / 10 // 次の桁に持っていく値
+	} else {
+		newVal = sum // 繰り上がりがないなら、そのまま
 	}
+	return newVal, newCarry
 }
